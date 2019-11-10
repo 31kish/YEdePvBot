@@ -11,8 +11,16 @@ client.on('message', message => {
         return;
     }
 
-    if (message.content === "!count") {
-        count_message(message);
+    if (message.content.startsWith('!count')) {
+        const time = Number(message.content.split(' ')[1]);
+
+        if (isNaN(time)) {
+            console.log('カウントダウンのみ');
+            count_message(message.channel);
+        } else {
+            console.log('カウンドダウン後、終了宣言');
+            remind(message.channel, time);
+        }
     }
 });
 
@@ -26,12 +34,27 @@ function sleep(time) {
     });
 }
 
-async function count_message(message) {
-    message.channel.send('3');
+async function count_message(channel) {
+    channel.send('3');
     await sleep(750);
-    message.channel.send('2');
+    channel.send('2');
     await sleep(750);
-    message.channel.send('1');
+    channel.send('1');
     await sleep(750);
-    message.channel.send('スタート!!');
+    channel.send('スタート!!');
+}
+
+/**
+ * カウントダウンのあと、指定した時間に終了宣言します
+ * @param {} channel チャンネル
+ * @param {} end_time 終了時間（分）
+ */
+function remind(channel, end_time) {
+    const min = end_time * 60 * 1000;
+    console.log(`${min}ミリ秒`);
+    console.log(`${end_time}分後に終了宣言します`);
+    count_message(channel);
+    client.setTimeout(function () {
+        channel.send('終了!!');
+    }, min);
 }
